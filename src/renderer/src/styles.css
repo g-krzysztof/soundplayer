@@ -1,0 +1,363 @@
+:root {
+  --tint: rgba(16, 18, 26, 0.55);
+  --line: rgba(255, 255, 255, 0.1);
+  --hover: rgba(255, 255, 255, 0.08);
+  --text: #eef0f6;
+  --muted: #9aa1b4;
+  --accent: #ff8a5c;
+  --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* The window is transparent with native vibrancy behind it; the page only tints it. */
+body {
+  background: transparent;
+  color: var(--text);
+  font: 12px/1.4 var(--ui-font);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--tint);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  /* The whole panel moves the window; interactive parts opt out below. */
+  -webkit-app-region: drag;
+}
+
+.player.is-drag-over {
+  border-color: var(--accent);
+}
+
+button,
+input,
+.library {
+  -webkit-app-region: no-drag;
+}
+
+/* Title row */
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+  padding: 0 6px 0 14px;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.win-btn {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+.win-btn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+/* Seek row */
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+}
+
+.time {
+  width: 34px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+
+.time:last-child {
+  text-align: right;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+input[type='range']:hover::-webkit-slider-thumb {
+  background: var(--accent);
+}
+
+input[type='range']:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.seek {
+  flex: 1;
+}
+
+/* Buttons row */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 48px;
+  padding: 0 10px;
+}
+
+.ctrl {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.ctrl:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.ctrl.is-on {
+  color: var(--accent);
+}
+
+.ctrl-play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--text);
+  color: #14161e;
+}
+
+.ctrl-play:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.volume {
+  flex: 1;
+  margin: 0 8px 0 12px;
+}
+
+/* Library list */
+
+.library {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.library-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.crumbs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.crumb-wrap {
+  display: flex;
+  min-width: 0;
+}
+
+/* The deepest folder is the one that matters; ancestors give way first. */
+.crumb-wrap:last-child {
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.crumb {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.crumb:hover {
+  color: var(--text);
+  background: var(--hover);
+}
+
+.crumb-wrap:last-child .crumb {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.crumb-sep {
+  padding: 2px 0;
+  opacity: 0.5;
+}
+
+.playlist {
+  flex: 1;
+  margin: 0;
+  padding: 4px 6px 8px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.playlist li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 4px 0 6px;
+  border-radius: 6px;
+  cursor: default;
+}
+
+.playlist li:hover {
+  background: var(--hover);
+}
+
+.playlist li.is-folder {
+  cursor: pointer;
+}
+
+.playlist li.is-current {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.is-drop-target,
+.playlist li.is-drop-target {
+  background: rgba(255, 138, 92, 0.18);
+  outline: 1px solid var(--accent);
+}
+
+.row-icon {
+  display: grid;
+  color: var(--muted);
+}
+
+.is-current .row-icon {
+  color: var(--accent);
+}
+
+.playlist-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rename {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  user-select: text;
+}
+
+.row-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.row-btn:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--hover);
+}
+
+.playlist li .row-btn {
+  visibility: hidden;
+}
+
+.playlist li:hover .row-btn {
+  visibility: visible;
+}
+
+.playlist-empty {
+  justify-content: center;
+  color: var(--muted);
+}

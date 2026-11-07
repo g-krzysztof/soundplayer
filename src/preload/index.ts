@@ -20,6 +20,8 @@ const api = {
     import: (paths: string[], toDir: string): Promise<void> => ipcRenderer.invoke('library:import', paths, toDir)
   },
   setPlaylistOpen: (open: boolean): void => ipcRenderer.send('window:setPlaylistOpen', open),
+  resizeStart: (): void => ipcRenderer.send('window:resizeStart'),
+  resizePlaylist: (dy: number): void => ipcRenderer.send('window:resizePlaylist', dy),
   minimize: (): void => ipcRenderer.send('window:minimize'),
   close: (): void => ipcRenderer.send('window:close')
 }

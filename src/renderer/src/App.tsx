@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type DragEvent, type PointerEvent, type ReactNode } from 'react'
 import { TRACK_SCHEME, type Entry, type Listing, type Moved, type Track } from '../../shared/types'
 
 function trackUrl(track: Track): string {
@@ -13,6 +13,8 @@ function formatTime(seconds: number): string {
 
 const VOLUME_KEY = 'volume'
 const REPEAT_ONE_KEY = 'repeatOne'
+const SHOW_REMAINING_KEY = 'showRemaining'
+const PLAYLIST_OPEN_KEY = 'playlistOpen'
 
 // Drags that start in the list carry the item's path under this type; Finder drags carry Files.
 const ITEM_DRAG = 'application/x-soundplayer-item'
@@ -49,7 +51,8 @@ export default function App(): JSX.Element {
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(() => Number(localStorage.getItem(VOLUME_KEY) ?? 0.8))
   const [repeatOne, setRepeatOne] = useState(() => localStorage.getItem(REPEAT_ONE_KEY) === 'true')
-  const [playlistOpen, setPlaylistOpen] = useState(true)
+  const [showRemaining, setShowRemaining] = useState(() => localStorage.getItem(SHOW_REMAINING_KEY) === 'true')
+  const [playlistOpen, setPlaylistOpen] = useState(() => localStorage.getItem(PLAYLIST_OPEN_KEY) !== 'false')
   const [dragOver, setDragOver] = useState(false)
   const [listing, setListing] = useState<Listing | null>(null)
   const [renaming, setRenaming] = useState<string | null>(null)
@@ -124,7 +127,35 @@ export default function App(): JSX.Element {
     localStorage.setItem(REPEAT_ONE_KEY, String(repeatOne))
   }, [repeatOne])
 
-  useEffect(() => window.api.setPlaylistOpen(playlistOpen), [playlistOpen])
+  useEffect(() => localStorage.setItem(SHOW_REMAINING_KEY, String(showRemaining)), [showRemaining])
+
+  useEffect(() => {
+    window.api.setPlaylistOpen(playlistOpen)
+    localStorage.setItem(PLAYLIST_OPEN_KEY, String(playlistOpen))
+  }, [playlistOpen])
+
+  // Screen coordinates, because the handle moves along with the window's bottom edge while dragging.
+  // Pointer events can arrive several times per frame; only the latest offset is sent, once per frame.
+  const resizeFrom = useRef<number | null>(null)
+  const resizeOffset = useRef(0)
+  const resizeFrame = useRef(0)
+  const onGripDown = (event: PointerEvent): void => {
+    event.currentTarget.setPointerCapture(event.pointerId)
+    resizeFrom.current = event.screenY
+    window.api.resizeStart()
+  }
+  const onGripMove = (event: PointerEvent): void => {
+    if (resizeFrom.current === null) return
+    resizeOffset.current = event.screenY - resizeFrom.current
+    if (resizeFrame.current) return
+    resizeFrame.current = requestAnimationFrame(() => {
+      resizeFrame.current = 0
+      window.api.resizePlaylist(resizeOffset.current)
+    })
+  }
+  const onGripUp = (): void => {
+    resizeFrom.current = null
+  }
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current
@@ -343,7 +374,7 @@ export default function App(): JSX.Element {
 
       <header className="titlebar">
         <div className="title" title={track?.path}>
-          {track ? track.title : 'Upuść pliki MP3 albo kliknij +'}
+          {track?.title}
         </div>
         <button className="win-btn" onClick={() => window.api.minimize()} aria-label="Minimalizuj">
           <Icon>
@@ -370,7 +401,13 @@ export default function App(): JSX.Element {
           onChange={(event) => seek(Number(event.target.value))}
           aria-label="Pozycja"
         />
-        <span className="time">{formatTime(duration)}</span>
+        <button
+          className="time"
+          onClick={() => setShowRemaining((on) => !on)}
+          aria-label={showRemaining ? 'Pokaż długość utworu' : 'Pokaż pozostały czas'}
+        >
+          {showRemaining ? `-${formatTime(Math.max(duration - time, 0))}` : formatTime(duration)}
+        </button>
       </div>
 
       <div className="controls">
@@ -511,6 +548,18 @@ export default function App(): JSX.Element {
               </li>
             ))}
           </ol>
+          <div
+            className="resize-grip"
+            onPointerDown={onGripDown}
+            onPointerMove={onGripMove}
+            onPointerUp={onGripUp}
+            onPointerCancel={onGripUp}
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 10 10" width="10" height="10">
+              <path d="M9 3 3 9M9 6.5 6.5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
         </section>
       )}
     </div>

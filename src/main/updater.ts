@@ -4,7 +4,7 @@ import { access, constants, mkdtemp, readdir, writeFile } from 'fs/promises'
 import { dirname, join, resolve } from 'path'
 import { promisify } from 'util'
 
-// Releases are published here by `npm run release:mac` (see "publish" in package.json).
+// Releases are published here by `npm run release:mac` (scripts/release.sh).
 const REPO = 'g-krzysztof/soundplayer'
 const RELEASES_URL = `https://github.com/${REPO}/releases/latest`
 

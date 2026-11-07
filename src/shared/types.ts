@@ -4,7 +4,7 @@ export const AUDIO_EXTENSIONS = new Set(['.mp3', '.m4a', '.aac', '.wav', '.flac'
 
 export interface Track {
   path: string
-  // File name without the extension; shown until tags are read.
+  // File name without the extension.
   title: string
 }
 

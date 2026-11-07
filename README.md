@@ -1,3 +1,5 @@
+<img src="build/icon.png" width="128" alt="Soundplayer icon">
+
 # Soundplayer
 
 **A small floating music player for macOS: a panel that stays above your other windows, with a folder-based library you can organise by dragging, and self-updates.**

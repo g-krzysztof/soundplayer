@@ -4,7 +4,7 @@ import { AUDIO_EXTENSIONS, type Track } from '../shared/types'
 import { registerLibrary } from './library'
 import { registerTrackProtocol, registerTrackScheme } from './trackProtocol'
 import { checkForUpdates } from './updater'
-import { loadState, savePlaylist, trackPosition, visiblePosition } from './windowState'
+import { loadState, positionForCurrentLayout, savePlaylist, trackPosition } from './windowState'
 
 registerTrackScheme()
 
@@ -61,7 +61,7 @@ function createWindow(): void {
   const window = new BrowserWindow({
     width: WIDTH,
     height: windowHeight(),
-    ...visiblePosition(state),
+    ...positionForCurrentLayout(state),
     show: false,
     frame: false,
     resizable: false,

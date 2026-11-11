@@ -54,7 +54,8 @@ app.on('open-file', (event, filePath) => {
 })
 
 function createWindow(): void {
-  // A small frameless panel that floats over other windows instead of a regular app window.
+  // A small frameless panel that behaves like a regular app window: it goes behind other
+  // apps when they are active and comes back to the front from the Dock icon.
   const state = loadState()
   playlistHeight = state.playlistHeight ?? PLAYLIST_HEIGHT
   playlistOpen = state.playlistOpen ?? true
@@ -71,15 +72,12 @@ function createWindow(): void {
     vibrancy: 'hud',
     visualEffectState: 'active',
     hasShadow: true,
-    alwaysOnTop: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
   })
   mainWindow = window
-  window.setAlwaysOnTop(true, 'floating')
-  window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
   trackPosition(window)
 
   window.on('ready-to-show', () => window.show())
@@ -147,8 +145,12 @@ app.whenReady().then(() => {
   createWindow()
   checkForUpdates()
 
+  // A click on the Dock icon brings the player back, also when it was minimized.
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (!mainWindow) return createWindow()
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.show()
+    mainWindow.focus()
   })
 })
 

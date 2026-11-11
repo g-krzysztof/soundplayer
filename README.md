@@ -2,7 +2,7 @@
 
 # Soundplayer
 
-**A small floating music player for macOS: a panel that stays above your other windows, with a folder-based library you can organise by dragging, and self-updates.**
+**A small music player for macOS: a compact panel with a folder-based library you can organise by dragging, and self-updates.**
 
 Electron · React · TypeScript
 
@@ -14,7 +14,7 @@ Most music apps want a full window and their own database. I wanted something th
 
 ## Features
 
-- **Floating panel:** a small frameless window that stays above other windows, follows you to every desktop and over full-screen apps, and remembers where you left it on screen.
+- **Compact panel:** a small frameless window that behaves like a regular app (Dock icon, goes behind other apps, comes back with a click on the Dock or Cmd+Tab) and remembers where you left it on screen.
 - **Playback:** play/pause, previous/next, seek, volume, and repeat-one. Volume and repeat are remembered between launches. "Previous" more than 3 seconds into a song restarts it, like a hardware player.
 - **Library in a plain folder:** songs live in `~/Desktop/mp3`, created on first launch. The list browses it with breadcrumbs and an up button.
 - **Organise without Finder:**
